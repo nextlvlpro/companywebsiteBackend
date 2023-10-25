@@ -16,7 +16,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials:true,
-    origin: 'https://medplfrontend.onrender.com'
+    origin: true,
 }))
 
 app.use(cookieParser())
