@@ -54,7 +54,7 @@ app.post('/login', async (req, res) => {
         if (passCompare) {
             jwt.sign({emai: loginUser.email, objectId:loginUser._id}, jwtKey, {}, (err, token) => {
                 if(err) throw err;
-                res.cookie('token', token, {sameSite:'Secure'}).json(loginUser)
+                res.cookie('token', token, {sameSite:'lax'}).json(loginUser)
             })
         } else {
             res.json("password incorrect")
