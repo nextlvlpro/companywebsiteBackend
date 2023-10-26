@@ -16,7 +16,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials:true,
-    origin: https://medplfrontend.onrender.com,
+    origin: 'https://medplfrontend.onrender.com',
 }))
 
 app.use(cookieParser())
@@ -54,7 +54,7 @@ app.post('/login', async (req, res) => {
         if (passCompare) {
             jwt.sign({emai: loginUser.email, objectId:loginUser._id}, jwtKey, {}, (err, token) => {
                 if(err) throw err;
-                res.cookie('token', token).json(loginUser)
+                res.cookie('token', token,{sameSite:'none', secure:true}).json(loginUser)
             })
         } else {
             res.json("password incorrect")
