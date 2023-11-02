@@ -6,7 +6,9 @@ const employeelistSchema = new mongoose.Schema({
     vworkid:String,
     phonenumber:String,
     designation:String,
+    subdesignation:String,
     shopCode:String,
+    area:String,
 })
 
 const employelists = mongoose.model('employelists', employeelistSchema)

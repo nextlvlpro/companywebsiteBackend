@@ -7,6 +7,8 @@ const regModel = new mongoose.Schema({
     vworkid:String,
     shopCode:String,
     designation:String,
+    subdesignation:String,
+    area:String,
 })
 
 const regUser = mongoose.model('regUser', regModel)

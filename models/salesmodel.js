@@ -5,6 +5,8 @@ const mongoose = require('mongoose')
         // shopCode: String,
         // target: Number,
         // ach: Number,
+        amArea:String
+
     })
 
 const salesdata = mongoose.model('salesdata', saleModel)
