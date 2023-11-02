@@ -69,7 +69,7 @@ app.post('/login', async (req, res) => {
         if (password == loginUser.password) {
             jwt.sign({ email: loginUser.email, objectId: loginUser._id }, jwtKey, {}, (err, token) => {
                 if (err) throw err;
-                res.cookie('token', token, { sameSite: 'none', secure: true }).json(loginUser)
+                res.cookie('token', token, { sameSite: 'none', secure: true,maxAge:'900000000'  }).json(loginUser)
             })
         } else {
             res.json("password incorrect")
