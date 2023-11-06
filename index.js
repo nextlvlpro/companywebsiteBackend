@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken')
 const employelists = require("./models/employeelist.js")
 const vbasaledatas = require("./models/vbasalequery.js")
 const areaList = require("./models/areas.js")
+const nodemailer = require('nodemailer')
 //MongoDB connection
 mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is connected") }, err => { console.log("mongoose not connected", err); })
 
@@ -30,19 +31,80 @@ const jwtKey = process.env.JWTSECUREKEY
 
 
 //register
+
+
 app.post('/register', async (req, res) => {
+    const otpConfirmation = req.body.otpConfirmation
+    const otpConfirmed = req.body.otpConfirmed
+    const reqOtp = req.body.reqOtp
+    const email = req.body.email
+
     
     const alreadyUser = await regUser.findOne({ email: req.body.email });
+    if (alreadyUser) {
+        return res.json('User Already Exists')
+    }
+
     const isEmployee = await employelists.findOne({ useremail: req.body.email });
 
-
-    if (alreadyUser) {
-        return res.status(200).json('user already Exists')
+    if(!isEmployee && otpConfirmed) {
+        return res.json('Did you change your email while registering? Start again.')
     }
-    if (isEmployee) {
+    //emailverification
+    if (!otpConfirmation && !reqOtp && !otpConfirmed) {
+        if (isEmployee) {
+            return res.json('ok')
+        } else {
+            return res.json('User is not Registered with MEDPL')
+        }
+    }
+    //req otp
+    if (reqOtp && !otpConfirmed) {
+    // Node Mailer
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+                user: "comedpl@gmail.com",
+                pass: "oikk ukuh vcdd vvla",
+            },
+        });
 
+       
+        const OTP = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000).toString();
+        const encryptOTP = bcrypt.hashSync(OTP, bcrypt.genSaltSync(10));
+
+        const info = await transporter.sendMail({
+            from: 'MEDPL',
+            to: email,
+            subject: "OTP",
+            html: `<b>Your OTP is : ${OTP}`
+        }).then(() => {
+            return res.cookie('otp', encryptOTP, { sameSite: 'none', secure: true }).json('done')
+        }).catch((err) => {
+            console.log(err);
+            return res.json(err)
+        })
+    }
+
+    //otp confirmation
+    if (otpConfirmation && !otpConfirmed) {
+        const encryptOTP = req.cookies.otp
+        
+        const otp = req.body.otp
+        
+        if ( bcrypt.compareSync(otp, encryptOTP)) {
+            return res.json('otp confiremed')
+        } else {
+            return res.json('wrong otp')
+        }
+    }
+
+    //otp confiremed, register
+    if (otpConfirmed) {
         const newUser = await regUser.create({
-            userName: req.body.userName,
+            userName: isEmployee.name,
             email: req.body.email,
             password: req.body.password,
             vworkid: isEmployee.vworkid,
@@ -51,14 +113,14 @@ app.post('/register', async (req, res) => {
             subdesignation: isEmployee.subdesignation,
             area: isEmployee.area,
         })
-        return res.json('registration done')
 
-    } else {
-        res.json('This Email is not registerd with company')
+        res.cookie('otp', '', { sameSite: 'none', secure: true }).json('registered')
     }
 
-
 })
+//registration ends here
+
+
 //Login 
 app.post('/login', async (req, res) => {
     const email = req.body.email
@@ -69,7 +131,7 @@ app.post('/login', async (req, res) => {
         if (password == loginUser.password) {
             jwt.sign({ email: loginUser.email, objectId: loginUser._id }, jwtKey, {}, (err, token) => {
                 if (err) throw err;
-                res.cookie('token', token, { sameSite: 'none', secure: true,maxAge:'900000000'  }).json(loginUser)
+                res.cookie('token', token, { sameSite: 'none', secure: true, maxAge: '900000000' }).json(loginUser)
             })
         } else {
             res.json("password incorrect")
@@ -141,11 +203,11 @@ app.post('/asmareaquery', async (req, res) => {
     }
 })
 
-app.post('/officetsmareaquery', async (req,res) => {
-    const {asmarea} = req.body
-    
-    if(asmarea) {
-        const tsmareas = await areaList.find({asmArea:(asmarea).toUpperCase()})
+app.post('/officetsmareaquery', async (req, res) => {
+    const { asmarea } = req.body
+
+    if (asmarea) {
+        const tsmareas = await areaList.find({ asmArea: (asmarea).toUpperCase() })
         return res.json(tsmareas)
     } else {
         res.json('notfound')
@@ -160,10 +222,10 @@ app.post('/tsmsalequery', async (req, res) => {
     }
 })
 
-app.post('/tsmareavbasalequery',async (req,res) => {
+app.post('/tsmareavbasalequery', async (req, res) => {
     const tsmArea = req.body
-    
-    const vbasales = await vbasaledatas.find({tsmArea:(tsmArea.tsmarea).toUpperCase()})
+
+    const vbasales = await vbasaledatas.find({ tsmArea: (tsmArea.tsmarea).toUpperCase() })
     res.json(vbasales)
 })
 
