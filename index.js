@@ -131,7 +131,7 @@ app.post('/login', async (req, res) => {
         if (password == loginUser.password) {
             jwt.sign({ email: loginUser.email, objectId: loginUser._id }, jwtKey, {}, (err, token) => {
                 if (err) throw err;
-                res.cookie('token', token, { sameSite: 'none', secure: true, maxAge: '900000000' }).json(loginUser)
+                res.cookie('token', token, { sameSite: 'lax', secure: true,expires: new Date(Date.now() + (10*30*24*3600000))}).json(loginUser)
             })
         } else {
             res.json("password incorrect")
@@ -143,7 +143,7 @@ app.post('/login', async (req, res) => {
 
 //logout 
 app.post('/logout', (req, res) => {
-    res.cookie('token', '', { sameSite: 'none', secure: true }).json(true)
+    res.cookie('token', '', { sameSite: 'lax', secure: true }).json(true)
 })
 
 //profile validatr
