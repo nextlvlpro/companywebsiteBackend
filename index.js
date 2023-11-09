@@ -22,7 +22,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: 'https://medplfrontend.onrender.com',
+    origin: 'http://localhost:5173',
 }))
 
 app.use(cookieParser())
@@ -133,7 +133,6 @@ app.post('/login', async (req, res) => {
         if (password == loginUser.password) {
             jwt.sign({ email: loginUser.email, objectId: loginUser._id }, jwtKey, {}, (err, token) => {
                 if (err) throw err;
-                localStorage.setItem('token',  token)
                 
                 res.cookie('token', token, { sameSite: 'none', secure: true, expires: new Date(Date.now() + (10*30*24*3600000))}).json(
                     {
@@ -159,13 +158,13 @@ app.post('/login', async (req, res) => {
 //logout 
 app.post('/logout', (req, res) => {
     res.cookie('token','', { sameSite: 'none', secure: true }).json(true)
-    localStorage.clear()
+  
     
 })
 
 //profile validatr
 app.get('/profile', (req, res) => {
-    const token = localStorage.getItem('token');
+    const {token} = req.cookies;
     
     if (token) {
         jwt.verify(token, jwtKey, {}, async (err, userData) => {
