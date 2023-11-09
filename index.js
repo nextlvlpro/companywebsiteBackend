@@ -113,6 +113,7 @@ app.post('/register', async (req, res) => {
             designation: isEmployee.designation,
             subdesignation: isEmployee.subdesignation,
             area: isEmployee.area,
+            token:token
         })
 
         res.cookie('otp', '', { sameSite: 'none', secure: true }).json('registered')
