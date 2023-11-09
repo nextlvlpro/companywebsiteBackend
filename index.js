@@ -113,7 +113,7 @@ app.post('/register', async (req, res) => {
             designation: isEmployee.designation,
             subdesignation: isEmployee.subdesignation,
             area: isEmployee.area,
-            token:token
+            
         })
 
         res.cookie('otp', '', { sameSite: 'none', secure: true }).json('registered')
@@ -144,6 +144,7 @@ app.post('/login', async (req, res) => {
                         subdesignation: loginUser.subdesignation,
                         area: loginUser.area,
                         area: loginUser.area,
+                        token:token
                     }
                 )
             })
