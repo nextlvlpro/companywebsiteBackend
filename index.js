@@ -172,7 +172,9 @@ app.post('/profile', (req, res) => {
     if (token) {
         jwt.verify(token, jwtKey, {}, async (err, userData) => {
             if (err) throw err;
-            const userDoc = await regUser.findOne({ email: userData.email })
+            try {
+                const userDoc = await regUser.findOne({ email: userData.email });
+
             res.json({
                 email: userDoc.email,
                 userName: userDoc.userName,
@@ -181,8 +183,9 @@ app.post('/profile', (req, res) => {
                 designation: userDoc.designation,
                 subdesignation: userDoc.subdesignation,
                 area: userDoc.area,
-                area: userDoc.area,
             });  
+            } 
+            catch (e) { console.log(err); }
         })
     } else {
         res.json(null)
