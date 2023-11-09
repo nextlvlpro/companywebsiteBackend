@@ -13,8 +13,7 @@ const employelists = require("./models/employeelist.js")
 const vbasaledatas = require("./models/vbasalequery.js")
 const areaList = require("./models/areas.js")
 const nodemailer = require('nodemailer')
-const {LocalStorage} = require('node-localstorage')
-let localStorage = new LocalStorage('./scratch')
+
 //MongoDB connection
 mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is connected") }, err => { console.log("mongoose not connected", err); })
 
@@ -22,7 +21,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: 'https://medplfrontend.onrender.com',
+    origin: 'http://localhost:5173',
 }))
 
 app.use(cookieParser())
@@ -163,8 +162,10 @@ app.post('/logout', (req, res) => {
 })
 
 //profile validatr
-app.get('/profile', (req, res) => {
-    const {token} = req.cookies;
+app.post('/profile', (req, res) => {
+    const token = req.body.token
+    
+    
     
     if (token) {
         jwt.verify(token, jwtKey, {}, async (err, userData) => {
@@ -179,7 +180,7 @@ app.get('/profile', (req, res) => {
                 subdesignation: userDoc.subdesignation,
                 area: userDoc.area,
                 area: userDoc.area,
-            });
+            });  
         })
     } else {
         res.json(null)
