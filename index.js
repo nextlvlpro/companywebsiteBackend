@@ -84,7 +84,7 @@ app.post('/register', async (req, res) => {
         }).then(() => {
             return res.cookie('otp', encryptOTP, { sameSite: 'none', secure: true }).json('done')
         }).catch((err) => {
-            console.log(err);
+            
             return res.json(err)
         })
     }
@@ -113,7 +113,6 @@ app.post('/register', async (req, res) => {
             designation: isEmployee.designation,
             subdesignation: isEmployee.subdesignation,
             area: isEmployee.area,
-            
         })
 
         res.cookie('otp', '', { sameSite: 'none', secure: true }).json('registered')
@@ -144,7 +143,7 @@ app.post('/login', async (req, res) => {
                         subdesignation: loginUser.subdesignation,
                         area: loginUser.area,
                         area: loginUser.area,
-                        token:token
+                        
                     }
                 )
             })
@@ -167,25 +166,26 @@ app.post('/logout', (req, res) => {
 app.post('/profile', (req, res) => {
     const token = req.body.token
     
-    
-    
     if (token) {
+
         jwt.verify(token, jwtKey, {}, async (err, userData) => {
             if (err) throw err;
-            try {
-                const userDoc = await regUser.findOne({ email: userData.email });
 
-            res.json({
-                email: userDoc.email,
-                userName: userDoc.userName,
-                vworkid: userDoc.vworkid,
-                shopCode: userDoc.shopCode,
-                designation: userDoc.designation,
-                subdesignation: userDoc.subdesignation,
-                area: userDoc.area,
-            });  
-            } 
-            catch (e) { console.log(err); }
+            const userDoc = await regUser.findOne({email:userData.email})
+            
+            if (userDoc) {
+                res.json({
+                    email: userDoc.email,
+                    userName: userDoc.userName,
+                    vworkid: userDoc.vworkid,
+                    shopCode: userDoc.shopCode,
+                    designation: userDoc.designation,
+                    subdesignation: userDoc.subdesignation,
+                    area: userDoc.area,
+                });
+            } else {
+                res.json(null)
+            }
         })
     } else {
         res.json(null)
