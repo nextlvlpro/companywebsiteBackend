@@ -13,6 +13,8 @@ const employelists = require("./models/employeelist.js")
 const vbasaledatas = require("./models/vbasalequery.js")
 const areaList = require("./models/areas.js")
 const nodemailer = require('nodemailer')
+const pendingactivations = require("./models/pendingActivation.js")
+
 
 //MongoDB connection
 mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is connected") }, err => { console.log("mongoose not connected", err); })
@@ -21,7 +23,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: 'https://medplfrontend.onrender.com',
+    origin: 'http://localhost:5173',
 }))
 
 app.use(cookieParser())
@@ -265,6 +267,29 @@ app.post('/tsmareavbasalequery', async (req, res) => {
 
 
 
+//Pending Activation
+app.post('/pendingactivationsshop', async (req, res) => {
+    const { area, subdesignation,uploadercode } = req.body
+    if(subdesignation == 'asm') {
+        const data = await pendingactivations.find({ amarea: area }).sort('tmarea')
+        res.json(data)
+    }
+    if(subdesignation == 'tsm') {
+        const data = await pendingactivations.find({ tmarea: area }).sort('shopname')
+        res.json(data)
+    }
+    if(subdesignation == 'vba') {
+       
+        const data = await pendingactivations.find({uploadercode: uploadercode})
+        res.json(data)
+    }
+    
+})
+
+
+
+
+
 
 
 app.post('/delete', (req, res) => {
@@ -278,4 +303,9 @@ app.post('/deleteemplyeeinfo', (req, res) => {
 app.post('/deletevbasales', (req, res) => {
     vbasaledatas.deleteMany({}).then((done) => { res.json("deleted") })
 })
+app.post('/deletependingactivation', (req, res) => {
+    pendingactivations.deleteMany({}).then((done) => { res.json("deleted") })
+})
+
+
 app.listen(PORT, () => console.log(`App is listning at ${PORT}`))
