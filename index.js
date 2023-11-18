@@ -271,11 +271,11 @@ app.post('/tsmareavbasalequery', async (req, res) => {
 app.post('/pendingactivationsshop', async (req, res) => {
     const { area, subdesignation,uploadercode } = req.body
     if(subdesignation == 'asm') {
-        const data = await pendingactivations.find({ amarea: area }).sort('tmarea')
+        const data = await pendingactivations.find({ amarea: area.toUpperCase() }).sort('tmarea')
         res.json(data)
     }
     if(subdesignation == 'tsm') {
-        const data = await pendingactivations.find({ tmarea: area }).sort('shopname')
+        const data = await pendingactivations.find({ tmarea: area.toUpperCase() }).sort('shopname')
         res.json(data)
     }
     if(subdesignation == 'vba') {
