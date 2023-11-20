@@ -14,6 +14,7 @@ const vbasaledatas = require("./models/vbasalequery.js")
 const areaList = require("./models/areas.js")
 const nodemailer = require('nodemailer')
 const pendingactivations = require("./models/pendingActivation.js")
+const pendingpunchs = require("./models/pendingPunch.js")
 
 
 //MongoDB connection
@@ -23,7 +24,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: 'https://medplfrontend.onrender.com',
+    origin: 'http://localhost:5173',
 }))
 
 app.use(cookieParser())
@@ -270,6 +271,7 @@ app.post('/tsmareavbasalequery', async (req, res) => {
 //Pending Activation
 app.post('/pendingactivationsshop', async (req, res) => {
     const { area, subdesignation,uploadercode } = req.body
+ 
     if(subdesignation == 'asm') {
         const data = await pendingactivations.find({ amarea: area.toUpperCase() }).sort('tmarea')
         res.json(data)
@@ -283,8 +285,40 @@ app.post('/pendingactivationsshop', async (req, res) => {
         const data = await pendingactivations.find({uploadercode: uploadercode})
         res.json(data)
     }
+    if(subdesignation == 'office') {
+       
+        const data = await pendingactivations.find({}).sort('amarea')
+        res.json(data)
+    }
     
 })
+
+
+//pendingpunch
+app.post('/pendingpunch', async (req, res) => {
+    const { area, subdesignation,uploadercode } = req.body
+
+    if(subdesignation == 'asm') {
+        const data = await pendingpunchs.find({ amarea: area.toUpperCase() }).sort('tsmarea')
+        res.json(data)
+    }
+    
+    if(subdesignation == 'tsm') {
+        const data = await pendingpunchs.find({ tsmarea: area.toUpperCase() }).sort('storename')
+        res.json(data)
+    }
+    if(subdesignation == 'vba') {
+        const data = await pendingpunchs.find({ storecode: uploadercode.toUpperCase() })
+        res.json(data)
+    }
+    if(subdesignation == 'office') {
+        const data = await pendingpunchs.find({}).sort('amarea')
+        res.json(data)
+    }
+    
+})
+
+
 
 
 
@@ -305,6 +339,10 @@ app.post('/deletevbasales', (req, res) => {
 })
 app.post('/deletependingactivation', (req, res) => {
     pendingactivations.deleteMany({}).then((done) => { res.json("deleted") })
+})
+
+app.post('/deletependinpunch', (req, res) => {
+    pendingpunchs.deleteMany({}).then((done) => { res.json("deleted") })
 })
 
 
