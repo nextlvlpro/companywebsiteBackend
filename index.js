@@ -24,7 +24,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: 'https://medplfrontend.onrender.com',
+    origin: 'http://localhost:5173',
 }))
 
 app.use(cookieParser())
@@ -85,17 +85,17 @@ app.post('/register', async (req, res) => {
             subject: "OTP",
             html: `<b>Your OTP is : ${OTP}`
         }).then(() => {
-            return res.cookie('otp', encryptOTP, { sameSite: 'none', secure: true }).json('done')
+            return res.json(encryptOTP)
         }).catch((err) => {
             
-            return res.json(err)
+            return res.json(null)
         })
     }
 
     //otp confirmation
     if (otpConfirmation && !otpConfirmed) {
-        const encryptOTP = req.cookies.otp
-
+        const encryptOTP = req.body.genratedOtp
+            console.log(req.body);
         const otp = req.body.otp
 
         if (bcrypt.compareSync(otp, encryptOTP)) {
