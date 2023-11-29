@@ -95,7 +95,7 @@ app.post('/register', async (req, res) => {
     //otp confirmation
     if (otpConfirmation && !otpConfirmed) {
         const encryptOTP = req.body.genratedOtp
-            console.log(req.body);
+          
         const otp = req.body.otp
 
         if (bcrypt.compareSync(otp, encryptOTP)) {
