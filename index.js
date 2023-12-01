@@ -15,6 +15,7 @@ const areaList = require("./models/areas.js")
 const nodemailer = require('nodemailer')
 const pendingactivations = require("./models/pendingActivation.js")
 const pendingpunchs = require("./models/pendingPunch.js")
+const retailerpayouts = require("./models/retailerPayout.js")
 
 
 //MongoDB connection
@@ -24,7 +25,7 @@ mongoose.connect(process.env.DATABASEURL).then(() => { console.log("mongoose is 
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: 'https://medplfrontend.onrender.com',
+    origin: 'http://localhost:5173',
 }))
 
 app.use(cookieParser())
@@ -95,7 +96,7 @@ app.post('/register', async (req, res) => {
     //otp confirmation
     if (otpConfirmation && !otpConfirmed) {
         const encryptOTP = req.body.genratedOtp
-          
+            console.log(req.body);
         const otp = req.body.otp
 
         if (bcrypt.compareSync(otp, encryptOTP)) {
@@ -267,6 +268,16 @@ app.post('/tsmareavbasalequery', async (req, res) => {
 })
 
 
+app.post('/retailerpayout', async (req,res) => {
+    let tsmarea = req.body;
+    
+    if (tsmarea) {
+        const retailerPayout = await retailerpayouts.find(tsmarea);
+        return res.json(retailerPayout);
+    }
+})
+
+
 
 //Pending Activation
 app.post('/pendingactivationsshop', async (req, res) => {
@@ -343,6 +354,9 @@ app.post('/deletependingactivation', (req, res) => {
 
 app.post('/deletependinpunch', (req, res) => {
     pendingpunchs.deleteMany({}).then((done) => { res.json("deleted") })
+})
+app.post('/deleteretailerpayout', (req, res) => {
+    retailerpayouts.deleteMany({}).then((done) => { res.json("deleted") })
 })
 
 
