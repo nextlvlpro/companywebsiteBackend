@@ -268,9 +268,10 @@ app.post('/tsmareavbasalequery', async (req, res) => {
 })
 
 
+
 app.post('/retailerpayout', async (req,res) => {
     let tsmarea = req.body;
-    
+  
     if (tsmarea) {
         const retailerPayout = await retailerpayouts.find(tsmarea);
         return res.json(retailerPayout);
